@@ -80,7 +80,7 @@ const List: React.FC = () => {
       <IonContent color="light">
         {loading ? (
           <div className="flex justify-center pt-20">
-            <Loader loading={loading} />
+            <Loader />
           </div>
         ) : (
           <div className="max-w-5xl mx-auto p-4">

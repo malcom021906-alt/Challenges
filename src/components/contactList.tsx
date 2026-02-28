@@ -1,4 +1,4 @@
-import ContactItem from './ContactItem';
+import ContactItem from './contactItem';
 
 interface Contact {
     id: number;
