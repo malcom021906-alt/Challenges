@@ -18,9 +18,9 @@ import {
 import { logOutOutline, personAddOutline, peopleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import ContactForm from '../components/ContactForm';
-import ContactList from '../components/ContactList';
-import Loader from '../components/Loader';
+import ContactForm from '../components/contactForm';
+import ContactList from '../components/contactList';
+import Loader from '../components/loader';
 
 interface Contact {
   id: number;
