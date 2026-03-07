@@ -7,15 +7,11 @@ interface Contact {
 interface ContactItemProps {
     contact: Contact;
     onDelete: (id: number) => void;
-    onClick: () => void;
 }
 
-function ContactItem({ contact, onDelete, onClick }: ContactItemProps) {
+function ContactItem({ contact, onDelete }: ContactItemProps) {
     return (
-        <li
-            onClick={onClick}
-            className="group flex justify-between items-center p-4 mb-3 bg-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200 hover:border-blue-100 cursor-pointer"
-        >
+        <li className="group flex justify-between items-center p-4 mb-3 bg-white border border-gray-100 rounded-xl hover:shadow-md transition-all duration-200 hover:border-blue-100">
             <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
                     {contact.name.charAt(0).toUpperCase()}
@@ -31,10 +27,7 @@ function ContactItem({ contact, onDelete, onClick }: ContactItemProps) {
                 </div>
             </div>
             <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(contact.id);
-                }}
+                onClick={() => onDelete(contact.id)}
                 className="opacity-100 md:opacity-50 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
                 title="Eliminar contacto"
             >
