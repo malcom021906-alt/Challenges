@@ -4,6 +4,8 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import List from './pages/List';
 import Login from './pages/Login';
+import UserDetail from './pages/userDetail';
+import PersonalInfoPage from './pages/personalInfo';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -79,6 +81,12 @@ const App: React.FC = () => (
         </PublicRoute>
         <PrivateRoute exact path="/list">
           <List />
+        </PrivateRoute>
+        <PrivateRoute exact path="/userDetail">
+          <UserDetail />
+        </PrivateRoute>
+        <PrivateRoute exact path="/personalInfo">
+          <PersonalInfoPage />
         </PrivateRoute>
         <Route exact path="/">
           <Redirect to={localStorage.getItem('logged') === 'true' ? '/list' : '/login'} />

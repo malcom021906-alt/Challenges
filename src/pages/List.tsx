@@ -15,7 +15,7 @@ import {
   IonCardTitle,
   IonCardContent
 } from '@ionic/react';
-import { logOutOutline, personAddOutline, peopleOutline } from 'ionicons/icons';
+import { logOutOutline, personAddOutline, peopleOutline, settingsOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import ContactForm from '../components/contactForm';
@@ -73,6 +73,10 @@ const List: React.FC = () => {
               <IonIcon slot="start" icon={logOutOutline} />
               <span className="hidden sm:inline">Salir</span>
             </IonButton>
+            <IonButton routerLink="/personalInfo" className="font-semibold">
+              <IonIcon slot="start" icon={settingsOutline} />
+              <span className="hidden sm:inline"></span>
+            </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -99,9 +103,9 @@ const List: React.FC = () => {
 
                 {/* Contact Form Column */}
                 <IonCol size="12" sizeMd="4" className="p-0 md:pr-4">
-                  <IonCard className="m-0 h-full shadow-md rounded-xl">
+                  <IonCard className="m-0 h-full shadow-md rounded-xl bg-white">
                     <IonCardHeader>
-                      <IonCardTitle className="text-xl font-bold flex items-center gap-2">
+                      <IonCardTitle className="text-xl font-bold flex items-center gap-2 text-black">
                         <IonIcon icon={personAddOutline} color="primary" />
                         Nuevo Contacto
                       </IonCardTitle>
@@ -114,9 +118,9 @@ const List: React.FC = () => {
 
                 {/* Contact List Column */}
                 <IonCol size="12" sizeMd="8" className="p-0 md:pl-2">
-                  <IonCard className="m-0 min-h-[400px] shadow-md rounded-xl">
+                  <IonCard className="m-0 min-h-[400px] shadow-md rounded-xl bg-white">
                     <IonCardHeader>
-                      <IonCardTitle className="text-xl font-bold flex items-center gap-2">
+                      <IonCardTitle className="text-xl font-bold flex items-center gap-2 text-black">
                         <IonIcon icon={peopleOutline} color="primary" />
                         Lista de Contactos
                       </IonCardTitle>

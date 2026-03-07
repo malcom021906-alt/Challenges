@@ -1,4 +1,5 @@
-import ContactItem from './ContactItem';
+import { useHistory } from 'react-router-dom';
+import ContactItem from './contactItem';
 
 interface Contact {
     id: number;
@@ -12,6 +13,7 @@ interface ContactListProps {
 }
 
 export const ContactList = ({ contacts, onDelete }: ContactListProps) => {
+    const history = useHistory();
     return (
         <ul className="w-full">
             {contacts.length === 0 ? (
@@ -23,7 +25,7 @@ export const ContactList = ({ contacts, onDelete }: ContactListProps) => {
                 </div>
             ) : (
                 contacts.map((contact) => (
-                    <ContactItem key={contact.id} contact={contact} onDelete={onDelete} />
+                    <ContactItem key={contact.id} contact={contact} onClick={() => { history.push(`/userDetail`) }} onDelete={onDelete} />
                 ))
             )}
         </ul>
