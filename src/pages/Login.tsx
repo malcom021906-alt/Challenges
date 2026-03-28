@@ -1,123 +1,120 @@
-import { IonContent, IonPage, IonInput, IonButton, IonIcon, IonCard, IonCardContent } from '@ionic/react';
-import { logInOutline, mailOutline, lockClosedOutline } from 'ionicons/icons';
+import {
+  IonContent,
+  IonPage,
+  IonInput,
+  IonButton,
+  IonText,
+  IonCard,
+  IonCardContent,
+  IonIcon,
+  IonSpinner
+} from '@ionic/react';
+import { logInOutline, personAddOutline, mailOutline, lockClosedOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import loginBg from '../assets/telefono.avif';
+import { useAuthContext } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const history = useHistory();
+  const { login, error, clearError } = useAuthContext();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const history = useHistory();
 
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (email === 'user@mail.com' && password === '123') {
-            localStorage.setItem('logged', 'true');
-            history.replace('/list');
-        } else {
-            setError('Credenciales incorrectas. Intenta con user@mail.com / 123');
-        }
-    };
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await login(email, password);
+      history.replace('/tasks');
+    } catch (err) {
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <IonPage>
-            <IonContent className="ion-padding" scrollY={false}>
-                {/* Background Layer */}
-                <div
-                    className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-                    style={{ backgroundImage: `url(${loginBg})` }}
-                />
+  return (
+    <IonPage>
+      <IonContent className="ion-padding" scrollY={false}>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6">
+          <div className="w-full max-w-md">
+            <div className="text-center mb-10">
+              <div className="bg-blue-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-4 transform rotate-12 transition-transform hover:rotate-0">
+                <IonIcon icon={logInOutline} className="text-4xl" />
+              </div>
+              <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Bienvenido</h1>
+              <p className="text-slate-500 mt-2 font-medium">Gestiona tus tareas de forma eficiente</p>
+            </div>
 
-                {/* Overlay for better contrast */}
-                <div className="absolute inset-0 z-10 bg-black/10 backdrop-blur-[2px]" />
+            <IonCard className="rounded-3xl shadow-xl border-0 overflow-hidden bg-white">
+              <IonCardContent className="p-8">
+                <form onSubmit={handleLogin} className="flex flex-col gap-6">
+                  <div className="space-y-4">
+                    <IonInput
+                      type="email"
+                      placeholder="Correo electrónico"
+                      value={email}
+                      onIonInput={(e) => setEmail(e.detail.value!)}
+                      className="custom-input h-14"
+                      fill="outline"
+                      labelPlacement="stacked"
+                    >
+                      <IonIcon slot="start" icon={mailOutline} className="mr-3 text-slate-400" aria-hidden="true" />
+                    </IonInput>
 
-                <div className="relative z-20 flex justify-center flex-col items-center min-h-screen p-4">
-                    <IonCard className="w-full max-w-md shadow-2xl rounded-[2.5rem] overflow-hidden border border-white/30 bg-white/70 backdrop-blur-xl animate-[fadeIn_0.5s_ease-out]">
-                        <IonCardContent className="p-8">
+                    <IonInput
+                      type="password"
+                      placeholder="Contraseña"
+                      value={password}
+                      onIonInput={(e) => setPassword(e.detail.value!)}
+                      className="custom-input h-14"
+                      fill="outline"
+                      labelPlacement="stacked"
+                    >
+                      <IonIcon slot="start" icon={lockClosedOutline} className="mr-3 text-slate-400" aria-hidden="true" />
+                    </IonInput>
+                  </div>
 
-                            {/* Header */}
-                            <div className="mb-10 text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 mb-4">
-                                    <IonIcon icon={logInOutline} className="text-3xl text-blue-600" />
-                                </div>
-                                <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight mb-2">Bienvenido</h1>
-                                <p className="text-slate-600 font-medium m-0">Ingresa a tu cuenta para continuar</p>
-                            </div>
+                  {error && (
+                    <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-shake">
+                      <IonText color="danger" className="text-sm font-semibold flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                        {error}
+                      </IonText>
+                    </div>
+                  )}
 
-                            {/* Form */}
-                            <form onSubmit={handleLogin} className="flex flex-col gap-5">
+                  <IonButton
+                    type="submit"
+                    expand="block"
+                    className="h-14 font-bold text-lg"
+                    style={{ '--border-radius': '1rem' }}
+                    disabled={loading}
+                  >
+                    {loading ? <IonSpinner name="crescent" /> : 'Iniciar Sesión'}
+                  </IonButton>
 
-                                <IonInput
-                                    id="email"
-                                    type="email"
-                                    label="Correo Electrónico"
-                                    labelPlacement="stacked"
-                                    placeholder="user@mail.com"
-                                    fill="outline"
-                                    className="custom-input"
-                                    value={email}
-                                    onIonInput={(e) => setEmail(e.detail.value! as string)}
-                                    color="primary"
-                                    required
-                                >
-                                    <IonIcon icon={mailOutline} slot="start" aria-hidden="true" className="text-slate-400 ml-2" />
-                                </IonInput>
-
-                                <IonInput
-                                    id="password"
-                                    type="password"
-                                    label="Contraseña"
-                                    labelPlacement="stacked"
-                                    placeholder="••••••••"
-                                    fill="outline"
-                                    className="custom-input"
-                                    value={password}
-                                    onIonInput={(e) => setPassword(e.detail.value! as string)}
-                                    color="primary"
-                                    required
-                                >
-                                    <IonIcon icon={lockClosedOutline} slot="start" aria-hidden="true" className="text-slate-400 ml-2" />
-                                </IonInput>
-
-                                {/* Error Message */}
-                                {error && (
-                                    <div className="bg-red-500/10 backdrop-blur-md p-4 rounded-2xl flex items-center gap-3 text-red-600 border border-red-500/20 animate-shake">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                        <p className="text-sm font-semibold leading-tight m-0">{error}</p>
-                                    </div>
-                                )}
-
-                                {/* Submit Button */}
-                                <IonButton
-                                    type="submit"
-                                    expand="block"
-                                    className="mt-4 h-14 font-bold text-lg shadow-lg shadow-blue-600/20"
-                                    style={{ '--border-radius': '1rem' }}
-                                    color="primary"
-                                >
-                                    Inicia Sesión
-                                    <IonIcon icon={logInOutline} slot="end" className="ml-2" />
-                                </IonButton>
-
-                                <div className="text-center mt-2">
-                                    <button type="button" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
-                                        ¿Olvidaste tu contraseña?
-                                    </button>
-                                </div>
-
-                            </form>
-
-                        </IonCardContent>
-                    </IonCard>
-
-                </div>
-            </IonContent>
-        </IonPage>
-    );
+                  <div className="text-center mt-4">
+                    <IonButton
+                      fill="clear"
+                      onClick={() => {
+                        clearError();
+                        history.push('/register');
+                      }}
+                      className="text-primary font-bold hover:opacity-80 transition-opacity"
+                    >
+                      <IonIcon icon={personAddOutline} slot="start" />
+                      ¿No tienes cuenta? Regístrate
+                    </IonButton>
+                  </div>
+                </form>
+              </IonCardContent>
+            </IonCard>
+          </div>
+        </div>
+      </IonContent>
+    </IonPage>
+  );
 };
 
 export default Login;
-

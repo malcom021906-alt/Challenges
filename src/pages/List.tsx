@@ -7,138 +7,132 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent
+  IonList,
+  IonItem,
+  IonLabel,
+  IonCheckbox,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
+  IonFab,
+  IonFabButton,
+  IonBadge,
+  IonChip
 } from '@ionic/react';
-import { logOutOutline, personAddOutline, peopleOutline, settingsOutline } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import { logOutOutline, addOutline, trashOutline, createOutline } from 'ionicons/icons';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
-import ContactForm from '../components/contactForm';
-import ContactList from '../components/contactList';
-import Loader from '../components/loader';
+import { useAuthContext } from '../contexts/AuthContext';
+import { useTasksContext } from '../contexts/TasksContext';
 
-interface Contact {
-  id: number;
-  name: string;
-  phone: string;
-}
-
-const List: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState(true);
+const TasksList: React.FC = () => {
+  const { logout, user } = useAuthContext();
+  const { tasks, toggleTask, deleteTask } = useTasksContext();
   const history = useHistory();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setContacts([
-        { id: 1, name: 'John Doe', phone: '123-456-7890' },
-        { id: 2, name: 'Jane Smith', phone: '987-654-3210' },
-      ]);
-      setLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const addContact = (name: string, phone: string) => {
-    const newContact: Contact = {
-      id: Date.now(),
-      name,
-      phone,
-    };
-    setContacts([...contacts, newContact]);
-  };
-
-  const deleteContact = (id: number) => {
-    setContacts(contacts.filter((contact) => contact.id !== id));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('logged');
+  const handleLogout = async () => {
+    await logout();
     history.replace('/login');
   };
+
+  const pendingCount = tasks.filter((t) => !t.completed).length;
+  const completedCount = tasks.filter((t) => t.completed).length;
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle>Gestión de Contactos</IonTitle>
+          <IonTitle>Mis Tareas</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={handleLogout} className="font-semibold">
               <IonIcon slot="start" icon={logOutOutline} />
               <span className="hidden sm:inline">Salir</span>
-            </IonButton>
-            <IonButton routerLink="/personalInfo" className="font-semibold">
-              <IonIcon slot="start" icon={settingsOutline} />
-              <span className="hidden sm:inline"></span>
             </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
 
       <IonContent color="light">
-        {loading ? (
-          <div className="flex justify-center pt-20">
-            <Loader />
+        <div className="max-w-3xl mx-auto p-4">
+          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+            <p className="text-sm text-slate-500 mb-3">
+              Conectado como: <strong className="text-slate-700">{user?.email}</strong>
+            </p>
+            <div className="flex gap-3">
+              <IonChip color="primary">
+                <IonLabel>Pendientes: {pendingCount}</IonLabel>
+              </IonChip>
+              <IonChip color="success">
+                <IonLabel>Completadas: {completedCount}</IonLabel>
+              </IonChip>
+            </div>
           </div>
-        ) : (
-          <div className="max-w-5xl mx-auto p-4">
 
-            {/* Hero Image */}
-            <IonCard className="mx-0 mt-2 mb-6 shadow-md rounded-xl overflow-hidden">
-              <img
-                src="https://media.istockphoto.com/id/2218105210/photo/folder-document-management-system-dms-open-file-folder-with-flying-blank-documents-with.jpg?s=1024x1024&w=is&k=20&c=QezwGIhw8EuA4_uTXxUQuEQ913l27-RglHNk_rGNUAc="
-                alt="PWA Connectivity"
-                className="w-full h-32 md:h-48 object-cover"
-              />
-            </IonCard>
+          {tasks.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">📋</div>
+              <h2 className="text-xl font-bold text-slate-600 mb-2">No hay tareas aún</h2>
+              <p className="text-slate-400">Toca el botón + para agregar tu primera tarea</p>
+            </div>
+          ) : (
+            <IonList className="rounded-2xl overflow-hidden shadow-md bg-white" color='light'>
+              {tasks.map((task) => (
+                <IonItemSliding key={task.id} className="bg-white">
+                  <IonItem
+                    color="light"
+                    button
+                    onClick={() => history.push(`/task/view/${task.id}`)}
+                    className="py-1 bg-white"
+                  >
+                    <IonCheckbox
+                      slot="start"
+                      checked={task.completed}
+                      onIonChange={(e) => {
+                        e.stopPropagation();
+                        toggleTask(task.id);
+                      }}
+                    />
+                    <IonLabel
+                      className={task.completed ? 'line-through opacity-50' : ''}
+                    >
+                      <h2 className="font-semibold">{task.title}</h2>
+                      <p className="text-sm text-slate-500 truncate">{task.description}</p>
+                    </IonLabel>
+                    {task.completed ? (
+                      <IonBadge color="success" slot="end">Hecho</IonBadge>
+                    ) : (
+                      <IonBadge color="warning" slot="end">Pendiente</IonBadge>
+                    )}
+                  </IonItem>
 
-            <IonGrid className="p-0">
-              <IonRow className="gap-y-6">
+                  <IonItemOptions side="end">
+                    <IonItemOption
+                      color="primary"
+                      onClick={() => history.push(`/task/edit/${task.id}`)}
+                    >
+                      <IonIcon slot="icon-only" icon={createOutline} />
+                    </IonItemOption>
+                    <IonItemOption
+                      color="danger"
+                      onClick={() => deleteTask(task.id)}
+                    >
+                      <IonIcon slot="icon-only" icon={trashOutline} />
+                    </IonItemOption>
+                  </IonItemOptions>
+                </IonItemSliding>
+              ))}
+            </IonList>
+          )}
+        </div>
 
-                {/* Contact Form Column */}
-                <IonCol size="12" sizeMd="4" className="p-0 md:pr-4">
-                  <IonCard className="m-0 h-full shadow-md rounded-xl bg-white">
-                    <IonCardHeader>
-                      <IonCardTitle className="text-xl font-bold flex items-center gap-2 text-black">
-                        <IonIcon icon={personAddOutline} color="primary" />
-                        Nuevo Contacto
-                      </IonCardTitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                      <ContactForm onAdd={addContact} />
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-
-                {/* Contact List Column */}
-                <IonCol size="12" sizeMd="8" className="p-0 md:pl-2">
-                  <IonCard className="m-0 min-h-[400px] shadow-md rounded-xl bg-white">
-                    <IonCardHeader>
-                      <IonCardTitle className="text-xl font-bold flex items-center gap-2 text-black">
-                        <IonIcon icon={peopleOutline} color="primary" />
-                        Lista de Contactos
-                      </IonCardTitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                      <ContactList contacts={contacts} onDelete={deleteContact} />
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-
-              </IonRow>
-            </IonGrid>
-
-          </div>
-        )}
+        <IonFab vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton onClick={() => history.push('/task/add')} color="primary">
+            <IonIcon icon={addOutline} />
+          </IonFabButton>
+        </IonFab>
       </IonContent>
     </IonPage>
   );
 };
 
-export default List;
+export default TasksList;
