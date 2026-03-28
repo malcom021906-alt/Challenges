@@ -7,16 +7,42 @@ import {
     IonCardContent
 } from '@ionic/react';
 import { peopleOutline } from 'ionicons/icons';
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuthContext } from '../contexts/AuthContext';
 
 import ContactInfo from '../components/contactInfo';
 
 const UserDetail: React.FC = () => {
     const history = useHistory();
+    const { id } = useParams<{ id: string }>();
+    const { user, logout } = useAuthContext();
+    const [contact, setContact] = useState<{ name: string; phone: string } | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const handleLogout = () => {
-        localStorage.removeItem('logged');
+    useEffect(() => {
+        const fetchContact = async () => {
+            if (!user || !id) return;
+            try {
+                const docRef = doc(db, `users/${user.uid}/contacts`, id);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setContact(docSnap.data() as { name: string; phone: string });
+                }
+            } catch (error) {
+                console.error("Error fetching contact:", error);
+            } finally {
+                setLoading(setLoading(false) as any);
+            }
+        };
+
+        fetchContact();
+    }, [user, id]);
+
+    const handleLogout = async () => {
+        await logout();
         history.replace('/login');
     };
 
@@ -38,14 +64,20 @@ const UserDetail: React.FC = () => {
                         </div>
 
                         <IonCardContent className="p-8">
-                            <ContactInfo
-                                name="Juan Pérez"
-                                phone="300 123 4567"
-                            />
+                            {loading ? (
+                                <p className="text-center py-4">Cargando...</p>
+                            ) : contact ? (
+                                <ContactInfo
+                                    name={contact.name}
+                                    phone={contact.phone}
+                                />
+                            ) : (
+                                <p className="text-center py-4 text-red-500">Contacto no encontrado</p>
+                            )}
 
                             <div className="pt-8 border-t border-gray-100 flex gap-4 mt-6">
-                                <IonButton fill="outline" routerLink="/list" className="flex-1 rounded-xl">
-                                    Volver a la lista
+                                <IonButton fill="outline" onClick={() => history.goBack()} className="flex-1 rounded-xl">
+                                    Volver
                                 </IonButton>
                                 <IonButton onClick={handleLogout} color="danger" fill="clear" className="flex-1">
                                     Cerrar Sesión

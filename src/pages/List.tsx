@@ -19,7 +19,7 @@ import {
   IonBadge,
   IonChip
 } from '@ionic/react';
-import { logOutOutline, addOutline, trashOutline, createOutline } from 'ionicons/icons';
+import { logOutOutline, addOutline, trashOutline, createOutline, wifiOutline } from 'ionicons/icons';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
@@ -27,7 +27,7 @@ import { useTasksContext } from '../contexts/TasksContext';
 
 const TasksList: React.FC = () => {
   const { logout, user } = useAuthContext();
-  const { tasks, toggleTask, deleteTask } = useTasksContext();
+  const { tasks, toggleTask, deleteTask, isOnline } = useTasksContext();
   const history = useHistory();
 
   const handleLogout = async () => {
@@ -44,6 +44,9 @@ const TasksList: React.FC = () => {
         <IonToolbar color="primary">
           <IonTitle>Mis Tareas</IonTitle>
           <IonButtons slot="end">
+            {!isOnline && (
+              <IonIcon icon={wifiOutline} color="danger" className="mr-2 text-xl" />
+            )}
             <IonButton onClick={handleLogout} className="font-semibold">
               <IonIcon slot="start" icon={logOutOutline} />
               <span className="hidden sm:inline">Salir</span>
@@ -58,6 +61,11 @@ const TasksList: React.FC = () => {
             <p className="text-sm text-slate-500 mb-3">
               Conectado como: <strong className="text-slate-700">{user?.email}</strong>
             </p>
+            {!isOnline && (
+              <IonChip color="danger" className="mb-4">
+                <IonLabel>Sin conexión - Modo Solo Lectura</IonLabel>
+              </IonChip>
+            )}
             <div className="flex gap-3">
               <IonChip color="primary">
                 <IonLabel>Pendientes: {pendingCount}</IonLabel>
@@ -109,12 +117,14 @@ const TasksList: React.FC = () => {
                     <IonItemOption
                       color="primary"
                       onClick={() => history.push(`/task/edit/${task.id}`)}
+                      disabled={!isOnline}
                     >
                       <IonIcon slot="icon-only" icon={createOutline} />
                     </IonItemOption>
                     <IonItemOption
                       color="danger"
                       onClick={() => deleteTask(task.id)}
+                      disabled={!isOnline}
                     >
                       <IonIcon slot="icon-only" icon={trashOutline} />
                     </IonItemOption>
@@ -126,7 +136,7 @@ const TasksList: React.FC = () => {
         </div>
 
         <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => history.push('/task/add')} color="primary">
+          <IonFabButton onClick={() => history.push('/task/add')} color="primary" disabled={!isOnline}>
             <IonIcon icon={addOutline} />
           </IonFabButton>
         </IonFab>
