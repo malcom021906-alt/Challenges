@@ -1,27 +1,13 @@
-// ============================================================
-// HOOK: useMotion (Acelerómetro)
-// Plugin: @capacitor/motion
-// ============================================================
-// POR QUÉ SE USA: La Misión 3 requiere detectar inmovilidad.
-// El acelerómetro mide la aceleración en los 3 ejes (x, y, z).
-// Si la variación es menor a un umbral, el usuario está quieto.
-// Si se mueve, el conteo de 10 segundos se reinicia.
-//
-// PERMISOS ANDROID: No requiere permiso especial (sensor pasivo)
-//
-// MEJORA UX: Hace la misión interactiva y física. El usuario
-// debe mantener el teléfono quieto durante 10 segundos, lo que
-// crea tensión y engagement con la app.
-// ============================================================
-
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Motion } from '@capacitor/motion';
 
-const STILL_THRESHOLD = 0.3;  // m/s² — variación máxima para considerar "quieto"
-const MISSION_DURATION = 10;  // segundos requeridos quieto
+const STILL_THRESHOLD = 0.8;
+const MISSION_DURATION = 10;
+const GRACE_PERIOD_MS = 1500;
 
 interface UseMotionReturn {
   isListening: boolean;
+  isReady: boolean;
   countdown: number;
   isCompleted: boolean;
   acceleration: { x: number; y: number; z: number } | null;
@@ -33,15 +19,17 @@ interface UseMotionReturn {
 
 export const useMotion = (onComplete: () => void): UseMotionReturn => {
   const [isListening, setIsListening] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [countdown, setCountdown] = useState(MISSION_DURATION);
   const [isCompleted, setIsCompleted] = useState(false);
   const [acceleration, setAcceleration] = useState<{ x: number; y: number; z: number } | null>(null);
-  const [isStill, setIsStill] = useState(false);
+  const [isStill, setIsStill] = useState(true);
 
-  const prevAccelRef = useRef<{ x: number; y: number; z: number } | null>(null);
   const countdownRef = useRef(MISSION_DURATION);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const listenerRef = useRef<{ remove: () => void } | null>(null);
+  const isReadyRef = useRef(false);
+  const prevAccelRef = useRef<{ x: number; y: number; z: number } | null>(null);
 
   const stopInterval = () => {
     if (intervalRef.current) {
@@ -50,28 +38,37 @@ export const useMotion = (onComplete: () => void): UseMotionReturn => {
     }
   };
 
-  const startInterval = useCallback(() => {
+  const resetTimer = () => {
     stopInterval();
-    intervalRef.current = setInterval(() => {
-      countdownRef.current -= 1;
-      setCountdown(countdownRef.current);
-
-      if (countdownRef.current <= 0) {
-        stopInterval();
-        setIsCompleted(true);
-        onComplete();
-      }
-    }, 1000);
-  }, [onComplete]);
+    countdownRef.current = MISSION_DURATION;
+    setCountdown(MISSION_DURATION);
+  };
 
   const startListening = useCallback(async () => {
     setIsListening(true);
-    countdownRef.current = MISSION_DURATION;
-    setCountdown(MISSION_DURATION);
+    setIsReady(false);
+    isReadyRef.current = false;
+    setIsStill(true);
     setIsCompleted(false);
+    resetTimer();
+
+    setTimeout(() => {
+      setIsReady(true);
+      isReadyRef.current = true;
+      
+      intervalRef.current = setInterval(() => {
+        if (countdownRef.current > 0) {
+          countdownRef.current -= 1;
+          setCountdown(countdownRef.current);
+        } else {
+          stopInterval();
+          setIsCompleted(true);
+          onComplete();
+        }
+      }, 1000);
+    }, GRACE_PERIOD_MS);
 
     try {
-      // Escuchar eventos del acelerómetro
       const handle = await Motion.addListener('accel', (event) => {
         const acc = event.acceleration;
         setAcceleration(acc);
@@ -81,7 +78,6 @@ export const useMotion = (onComplete: () => void): UseMotionReturn => {
           return;
         }
 
-        // Calcular variación de aceleración respecto a lectura anterior
         const delta = Math.sqrt(
           Math.pow(acc.x - prevAccelRef.current.x, 2) +
           Math.pow(acc.y - prevAccelRef.current.y, 2) +
@@ -92,51 +88,66 @@ export const useMotion = (onComplete: () => void): UseMotionReturn => {
         const stillNow = delta < STILL_THRESHOLD;
         setIsStill(stillNow);
 
-        if (stillNow) {
-          // Si el countdown no está corriendo, iniciarlo
-          if (!intervalRef.current) startInterval();
-        } else {
-          // Se movió → reiniciar conteo
-          stopInterval();
-          countdownRef.current = MISSION_DURATION;
-          setCountdown(MISSION_DURATION);
+        if (!stillNow && isReadyRef.current) {
+          resetTimer();
+          setTimeout(() => {
+            if (!intervalRef.current && isListening) {
+              intervalRef.current = setInterval(() => {
+                if (countdownRef.current > 0) {
+                  countdownRef.current -= 1;
+                  setCountdown(countdownRef.current);
+                } else {
+                  stopInterval();
+                  setIsCompleted(true);
+                  onComplete();
+                }
+              }, 1000);
+            }
+          }, 100);
         }
       });
 
       listenerRef.current = handle;
     } catch (e) {
-      // Fallback en browser: simular acelerómetro con timer
-      console.warn('Motion plugin no disponible en browser, usando simulación');
-      setIsStill(true);
-      startInterval();
+      setTimeout(() => {
+        setIsReady(true);
+        setIsStill(true);
+        intervalRef.current = setInterval(() => {
+          if (countdownRef.current > 0) {
+            countdownRef.current -= 1;
+            setCountdown(countdownRef.current);
+          } else {
+            stopInterval();
+            setIsCompleted(true);
+            onComplete();
+          }
+        }, 1000);
+      }, GRACE_PERIOD_MS);
     }
-  }, [startInterval]);
+  }, [onComplete]);
 
   const stopListening = useCallback(() => {
     listenerRef.current?.remove();
     listenerRef.current = null;
     stopInterval();
     setIsListening(false);
+    setIsReady(false);
+    isReadyRef.current = false;
   }, []);
 
   const reset = useCallback(() => {
     stopListening();
-    countdownRef.current = MISSION_DURATION;
-    setCountdown(MISSION_DURATION);
     setIsCompleted(false);
-    setIsStill(false);
+    resetTimer();
   }, [stopListening]);
 
-  // Limpiar al desmontar
   useEffect(() => {
-    return () => {
-      listenerRef.current?.remove();
-      stopInterval();
-    };
-  }, []);
+    return () => stopListening();
+  }, [stopListening]);
 
   return {
     isListening,
+    isReady,
     countdown,
     isCompleted,
     acceleration,

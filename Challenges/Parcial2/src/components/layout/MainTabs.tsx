@@ -25,17 +25,17 @@ const MainTabs: React.FC = () => {
       </IonRouterOutlet>
 
       <IonTabBar slot="bottom" id="main-tab-bar">
-        <IonTabButton tab="misiones" href="/app/misiones" id="tab-misiones">
+        <IonTabButton tab="misiones" href="/app/misiones" >
           <IonIcon icon={rocketOutline} />
           <IonLabel>Misiones</IonLabel>
         </IonTabButton>
 
-        <IonTabButton tab="ranking" href="/app/ranking" id="tab-ranking">
+        <IonTabButton tab="ranking" href="/app/ranking" >
           <IonIcon icon={trophyOutline} />
           <IonLabel>Ranking</IonLabel>
         </IonTabButton>
 
-        <IonTabButton tab="resultados" href="/app/resultados" id="tab-resultados">
+        <IonTabButton tab="resultados" href="/app/resultados" >
           <IonIcon icon={statsChartOutline} />
           <IonLabel>Resultados</IonLabel>
         </IonTabButton>

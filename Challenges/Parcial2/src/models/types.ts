@@ -1,7 +1,3 @@
-// ============================================================
-// TIPOS / MODELOS DE LA APLICACIÓN
-// ============================================================
-
 export interface Mission {
   id: number;
   title: string;

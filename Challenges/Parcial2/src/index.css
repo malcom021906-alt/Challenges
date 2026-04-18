@@ -1,21 +1,11 @@
-/* ============================================================
-   PARCIAL2 — ESTILOS GLOBALES
-   App Gamificada de Misiones
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* ─── Variables CSS ─────────────────────────────────────── */
 :root {
   --font-main: 'Inter', sans-serif;
-
-  /* Colores primarios */
   --color-bg: #0a0e1a;
   --color-surface: #111827;
   --color-surface-2: #1a2236;
   --color-border: rgba(255, 255, 255, 0.08);
-
-  /* Acentos */
   --color-primary: #6c63ff;
   --color-primary-glow: rgba(108, 99, 255, 0.35);
   --color-secondary: #00d4aa;
@@ -23,30 +13,21 @@
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-success: #10b981;
-
-  /* Gradientes */
   --gradient-primary: linear-gradient(135deg, #6c63ff 0%, #a855f7 100%);
   --gradient-success: linear-gradient(135deg, #10b981 0%, #00d4aa 100%);
   --gradient-card: linear-gradient(145deg, #1a2236 0%, #111827 100%);
   --gradient-hero: linear-gradient(135deg, #0a0e1a 0%, #1a0a2e 50%, #0a1a2e 100%);
-
-  /* Texto */
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-
-  /* Sombras */
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
   --shadow-glow: 0 0 30px rgba(108, 99, 255, 0.2);
-
-  /* Radios */
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
   --radius-xl: 32px;
 }
 
-/* ─── Reset y base ──────────────────────────────────────── */
 * { box-sizing: border-box; }
 
 body, ion-app {
@@ -57,7 +38,6 @@ body, ion-app {
   padding: 0;
 }
 
-/* ─── Ionic overrides ───────────────────────────────────── */
 ion-content {
   --background: var(--color-bg);
   --color: var(--text-primary);
@@ -99,7 +79,6 @@ ion-input, ion-textarea {
   --placeholder-color: var(--text-muted);
 }
 
-/* ─── Clases utilitarias ────────────────────────────────── */
 .page-container {
   min-height: 100%;
   background: var(--gradient-hero);
@@ -107,7 +86,6 @@ ion-input, ion-textarea {
   padding-bottom: 80px;
 }
 
-/* Header de puntos */
 .points-header {
   display: flex;
   align-items: center;
@@ -133,7 +111,6 @@ ion-input, ion-textarea {
   box-shadow: 0 0 20px var(--color-primary-glow);
 }
 
-/* Barra de progreso */
 .progress-container {
   margin-bottom: 20px;
 }
@@ -162,7 +139,6 @@ ion-input, ion-textarea {
   box-shadow: 0 0 12px var(--color-primary-glow);
 }
 
-/* Cards de misión */
 .mission-card {
   background: var(--gradient-card);
   border: 1px solid var(--color-border);
@@ -278,7 +254,6 @@ ion-input, ion-textarea {
   border: 1px solid rgba(100, 116, 139, 0.2);
 }
 
-/* Login / Auth */
 .auth-container {
   display: flex;
   flex-direction: column;
@@ -400,7 +375,6 @@ ion-input, ion-textarea {
   color: var(--color-primary);
 }
 
-/* Sensor page */
 .sensor-card {
   background: var(--gradient-card);
   border: 1px solid var(--color-border);
@@ -428,7 +402,6 @@ ion-input, ion-textarea {
   letter-spacing: 1px;
 }
 
-/* Countdown */
 .countdown-ring {
   position: relative;
   width: 160px;
@@ -451,7 +424,6 @@ ion-input, ion-textarea {
   color: var(--text-primary);
 }
 
-/* Ranking */
 .ranking-item {
   display: flex;
   align-items: center;
@@ -500,7 +472,6 @@ ion-input, ion-textarea {
   color: var(--color-warning);
 }
 
-/* Alert toast */
 .app-toast {
   position: fixed;
   bottom: 90px;
@@ -528,7 +499,6 @@ ion-input, ion-textarea {
 .app-toast.success { border-color: rgba(16, 185, 129, 0.5); color: var(--color-success); }
 .app-toast.error { border-color: rgba(239, 68, 68, 0.5); color: var(--color-danger); }
 
-/* Result page */
 .result-level-badge {
   display: inline-flex;
   flex-direction: column;
@@ -545,7 +515,6 @@ ion-input, ion-textarea {
 .result-level-name { font-size: 1.2rem; font-weight: 800; color: #fff; }
 .result-level-pts { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
 
-/* Image preview */
 .photo-preview {
   width: 100%;
   max-height: 280px;
@@ -555,7 +524,6 @@ ion-input, ion-textarea {
   margin-bottom: 16px;
 }
 
-/* Device info */
 .device-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -585,7 +553,6 @@ ion-input, ion-textarea {
   color: var(--text-primary);
 }
 
-/* Animations */
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 20px var(--color-primary-glow); }
   50% { box-shadow: 0 0 40px var(--color-primary-glow), 0 0 60px var(--color-primary-glow); }
@@ -605,10 +572,8 @@ ion-input, ion-textarea {
 .animate-float { animation: float 3s ease-in-out infinite; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 
-/* Page transitions */
 .ion-page { animation: slide-up 0.3s ease; }
 
-/* Section title */
 .section-title {
   font-size: 0.75rem;
   font-weight: 700;
@@ -618,7 +583,6 @@ ion-input, ion-textarea {
   margin: 0 0 14px 0;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }

@@ -1,19 +1,3 @@
-// ============================================================
-// HOOK: useDevice
-// Plugin: @capacitor/device
-// ============================================================
-// POR QUÉ SE USA: Se muestra en la pantalla de Resultados para
-// contextualizar el rendimiento del dispositivo. Agrega valor
-// al parcial al demostrar uso del plugin Device de Capacitor.
-// Muestra modelo, OS, nivel de batería y plataforma.
-//
-// PERMISOS ANDROID: No requiere permisos adicionales.
-//
-// MEJORA UX: Personaliza la pantalla de resultados mostrando
-// que la app conoce el hardware del usuario, aumentando
-// la sensación de integración nativa.
-// ============================================================
-
 import { useState, useEffect } from 'react';
 import { Device } from '@capacitor/device';
 

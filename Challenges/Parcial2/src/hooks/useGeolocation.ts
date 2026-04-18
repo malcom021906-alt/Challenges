@@ -1,20 +1,3 @@
-// ============================================================
-// HOOK: useGeolocation
-// Plugin: @capacitor/geolocation
-// ============================================================
-// POR QUÉ SE USA: La Misión 2 requiere detección de movimiento
-// físico real. GPS es la única forma confiable de medir
-// desplazamiento en metros con precisión.
-//
-// PERMISOS ANDROID:
-//   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-//   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-//
-// MEJORA UX: El usuario ve en tiempo real cuántos metros ha
-// recorrido y sus coordenadas actuales, gamificando el movimiento.
-// Usa watchPosition() para actualización continua.
-// ============================================================
-
 import { useState, useRef, useCallback } from 'react';
 import { Geolocation } from '@capacitor/geolocation';
 import { calculateDistance, type Coordinates } from '../utils/distance';
@@ -56,7 +39,6 @@ export const useGeolocation = (): UseGeolocationReturn => {
     setError(null);
 
     try {
-      // 1. Obtener posición inicial con getCurrentPosition()
       const initial = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 10000,
@@ -72,7 +54,6 @@ export const useGeolocation = (): UseGeolocationReturn => {
       setDistanceMeters(0);
       setIsWatching(true);
 
-      // 2. Iniciar watchPosition() para monitoreo continuo
       const id = await Geolocation.watchPosition(
         { enableHighAccuracy: true },
         (position, err) => {
@@ -87,8 +68,6 @@ export const useGeolocation = (): UseGeolocationReturn => {
           };
 
           setCurrentPosition(current);
-
-          // Calcular distancia desde posición inicial
           const dist = calculateDistance(initCoords, current);
           setDistanceMeters(Math.round(dist));
         }

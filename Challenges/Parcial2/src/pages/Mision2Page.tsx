@@ -1,8 +1,3 @@
-// ============================================================
-// MISIÓN 2: Explorador Urbano — GPS / Movimiento
-// Plugins usados: @capacitor/geolocation
-// ============================================================
-
 import React, { useEffect, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle,
@@ -16,12 +11,12 @@ import { MISSIONS_DEFAULT } from '../models/types';
 
 const MISSION_ID = 2;
 const MISSION_POINTS = 100;
-const DISTANCE_REQUIRED = 30; // metros
+const DISTANCE_REQUIRED = 10;
 
 const Mision2Page: React.FC = () => {
   const { missions, completeMotion } = useApp();
   const {
-    currentPosition, initialPosition, distanceMeters,
+    currentPosition, distanceMeters,
     isWatching, error, startWatching, stopWatching, requestPermission
   } = useGeolocation();
   const { notifyMissionCompleted, notifyOneMissionLeft } = useLocalNotifications();
@@ -32,15 +27,12 @@ const Mision2Page: React.FC = () => {
 
   const mission = missions.find(m => m.id === MISSION_ID) ?? MISSIONS_DEFAULT[1];
   const isAlreadyDone = mission.status === 'completed';
-
   const pct = Math.min((distanceMeters / DISTANCE_REQUIRED) * 100, 100);
 
   useEffect(() => {
-    // Pedir permisos al cargar
     requestPermission();
   }, []);
 
-  // Detectar cuando se alcanza la distancia requerida
   useEffect(() => {
     if (distanceMeters >= DISTANCE_REQUIRED && !completed && !isAlreadyDone) {
       handleComplete();
@@ -81,8 +73,6 @@ const Mision2Page: React.FC = () => {
 
       <IonContent>
         <div className="page-container">
-
-          {/* Info misión */}
           <div className="sensor-card" style={{ textAlign: 'left', marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
               <span style={{ fontSize: '2.5rem' }}>🗺️</span>
@@ -98,16 +88,8 @@ const Mision2Page: React.FC = () => {
               Desplázate <strong>{DISTANCE_REQUIRED} metros</strong> desde tu posición inicial.
               El GPS monitorea tu movimiento en tiempo real.
             </p>
-            <div style={{
-              marginTop: '12px', padding: '8px 12px',
-              background: 'rgba(108,99,255,0.08)',
-              borderRadius: '8px', fontSize: '0.75rem', color: 'var(--color-primary)'
-            }}>
-              🔌 <strong>@capacitor/geolocation</strong> — getCurrentPosition() + watchPosition()
-            </div>
           </div>
 
-          {/* Ya completada */}
           {(isAlreadyDone || completed) && (
             <div style={{
               textAlign: 'center', padding: '20px',
@@ -124,7 +106,6 @@ const Mision2Page: React.FC = () => {
             </div>
           )}
 
-          {/* Metros recorridos — display principal */}
           {!isAlreadyDone && (
             <div className="sensor-card">
               <p className="sensor-label">Metros Recorridos</p>
@@ -134,16 +115,12 @@ const Mision2Page: React.FC = () => {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 16px' }}>
                 Meta: {DISTANCE_REQUIRED}m
               </p>
-
-              {/* Barra de progreso GPS */}
               <div className="progress-bar-track">
                 <div
                   className="progress-bar-fill"
                   style={{
                     width: `${pct}%`,
-                    background: pct >= 100
-                      ? 'var(--gradient-success)'
-                      : 'var(--gradient-primary)'
+                    background: pct >= 100 ? 'var(--gradient-success)' : 'var(--gradient-primary)'
                   }}
                 />
               </div>
@@ -153,12 +130,8 @@ const Mision2Page: React.FC = () => {
             </div>
           )}
 
-          {/* Coordenadas actuales */}
           {currentPosition && isWatching && (
-            <div style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr',
-              gap: '10px', margin: '16px 0'
-            }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', margin: '16px 0' }}>
               <div className="device-info-item">
                 <div className="label">Latitud</div>
                 <div className="value" id="lat-display" style={{ fontSize: '0.75rem' }}>
@@ -174,7 +147,6 @@ const Mision2Page: React.FC = () => {
             </div>
           )}
 
-          {/* Error GPS */}
           {error && (
             <div style={{
               background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
@@ -185,13 +157,8 @@ const Mision2Page: React.FC = () => {
             </div>
           )}
 
-          {/* Botón inicio */}
           {!isAlreadyDone && !isWatching && !completed && (
-            <button
-              id="btn-start-gps"
-              className="btn-primary"
-              onClick={handleStart}
-            >
+            <button id="btn-start-gps" className="btn-primary" onClick={handleStart}>
               📍 Iniciar seguimiento GPS
             </button>
           )}
@@ -210,7 +177,6 @@ const Mision2Page: React.FC = () => {
             </div>
           )}
 
-          {/* Nota browser */}
           <div style={{
             marginTop: '16px', padding: '10px 14px',
             background: 'rgba(108,99,255,0.05)',

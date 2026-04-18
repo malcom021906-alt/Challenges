@@ -1,8 +1,3 @@
-// ============================================================
-// MISIÓN 1: Evidencia Fotográfica
-// Plugins usados: @capacitor/camera, @capacitor/filesystem
-// ============================================================
-
 import React, { useState, useEffect } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle,
@@ -52,23 +47,15 @@ const Mision1Page: React.FC = () => {
     if (!photo) return;
     setSaving(true);
     try {
-      // Guardar en filesystem local
       const fileName = `mision1_${Date.now()}.jpeg`;
       await savePhoto(photo, fileName);
-
-      // Marcar misión como completada
       completeMotion(MISSION_ID, MISSION_POINTS);
       setSaved(true);
-
-      // Enviar notificación local
       await notifyMissionCompleted('Evidencia Fotográfica', MISSION_POINTS);
-
-      // Notificar si falta 1 misión
       const completed = missions.filter(m => m.status === 'completed').length + 1;
       if (missions.length - completed === 1) {
         await notifyOneMissionLeft();
       }
-
       showToast('✅ Misión completada. +50 puntos');
       setTimeout(() => history.replace('/app/misiones'), 2000);
     } finally {
@@ -89,8 +76,6 @@ const Mision1Page: React.FC = () => {
 
       <IonContent>
         <div className="page-container">
-
-          {/* Info de misión */}
           <div className="sensor-card" style={{ textAlign: 'left', marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
               <span style={{ fontSize: '2.5rem' }}>📸</span>
@@ -108,18 +93,8 @@ const Mision1Page: React.FC = () => {
               Captura una foto como evidencia de tu presencia.
               La foto se guardará localmente en tu dispositivo.
             </p>
-
-            {/* Plugin info */}
-            <div style={{
-              marginTop: '12px', padding: '8px 12px',
-              background: 'rgba(108,99,255,0.08)',
-              borderRadius: '8px', fontSize: '0.75rem', color: 'var(--color-primary)'
-            }}>
-              🔌 <strong>@capacitor/camera</strong> + <strong>@capacitor/filesystem</strong>
-            </div>
           </div>
 
-          {/* Estado completada */}
           {isCompleted && !saved && (
             <div style={{
               textAlign: 'center', padding: '20px',
@@ -133,12 +108,10 @@ const Mision1Page: React.FC = () => {
             </div>
           )}
 
-          {/* Preview de foto */}
           {photo && (
             <img src={photo} alt="Foto tomada" className="photo-preview" id="photo-preview" />
           )}
 
-          {/* Botón tomar foto */}
           {!isCompleted && (
             <button
               id="btn-take-photo"
@@ -151,7 +124,6 @@ const Mision1Page: React.FC = () => {
             </button>
           )}
 
-          {/* Botón guardar y completar */}
           {photo && !isCompleted && (
             <button
               id="btn-save-photo"
@@ -164,7 +136,6 @@ const Mision1Page: React.FC = () => {
             </button>
           )}
 
-          {/* Instrucciones */}
           {!photo && !isCompleted && (
             <div style={{
               marginTop: '20px', textAlign: 'center',
@@ -180,7 +151,6 @@ const Mision1Page: React.FC = () => {
           )}
         </div>
 
-        {/* Toast */}
         <div className={`app-toast ${toast ? 'show' : ''} ${toast.includes('✅') ? 'success' : ''}`}>
           {toast}
         </div>

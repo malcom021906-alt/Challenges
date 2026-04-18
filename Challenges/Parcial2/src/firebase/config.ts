@@ -1,30 +1,20 @@
-// ============================================================
-// FIREBASE CONFIGURATION
-// ============================================================
-// IMPORTANTE: Reemplaza los valores placeholders con los de tu
-// proyecto Firebase en: console.firebase.google.com
-// Pasos:
-//   1. Crear proyecto Firebase (nombre: parcial2-misiones)
-//   2. Agregar app Web → copiar firebaseConfig
-//   3. Activar Authentication → Email/Password
-//   4. Crear Firestore Database (modo prueba)
-// ============================================================
-
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
 };
 
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const rtdb = getDatabase(app);
+
 export default app;

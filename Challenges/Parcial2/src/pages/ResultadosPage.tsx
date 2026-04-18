@@ -1,8 +1,3 @@
-// ============================================================
-// PANTALLA DE RESULTADOS
-// Plugins usados: @capacitor/device
-// ============================================================
-
 import React from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent
@@ -29,8 +24,6 @@ const ResultadosPage: React.FC = () => {
 
       <IonContent>
         <div className="page-container">
-
-          {/* Badge de nivel */}
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <div className="result-level-badge">
               <span className="result-level-emoji">{emoji}</span>
@@ -39,7 +32,6 @@ const ResultadosPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Estadísticas */}
           <p className="section-title">Estadísticas</p>
 
           <div className="device-info-grid" style={{ marginBottom: '20px' }}>
@@ -67,7 +59,6 @@ const ResultadosPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Detalle de misiones */}
           <p className="section-title">Detalle de Misiones</p>
           {missions.map(m => (
             <div key={m.id} style={{
@@ -99,17 +90,10 @@ const ResultadosPage: React.FC = () => {
             </div>
           ))}
 
-          {/* Info del dispositivo — Capacitor Device */}
           {deviceInfo && (
             <>
               <p className="section-title" style={{ marginTop: '20px' }}>
                 Info del Dispositivo
-                <span style={{
-                  marginLeft: '8px', fontSize: '0.65rem',
-                  color: 'var(--color-primary)', fontWeight: 600
-                }}>
-                  🔌 @capacitor/device
-                </span>
               </p>
               <div className="device-info-grid">
                 <div className="device-info-item">
@@ -137,7 +121,6 @@ const ResultadosPage: React.FC = () => {
             </>
           )}
 
-          {/* Usuario */}
           {user && (
             <div style={{
               marginTop: '20px', padding: '14px 16px',
@@ -149,7 +132,6 @@ const ResultadosPage: React.FC = () => {
             </div>
           )}
 
-          {/* Reset progreso */}
           <button
             id="btn-reset-progress"
             className="btn-secondary"

@@ -1,22 +1,3 @@
-// ============================================================
-// HOOK: useLocalNotifications
-// Plugin: @capacitor/local-notifications
-// ============================================================
-// POR QUÉ SE USA: Las notificaciones locales son el canal de
-// comunicación proactiva de la app con el usuario. Se envían:
-//   1. Al completar cada misión: "¡Misión completada!"
-//   2. Cuando falta 1 misión: "¡Casi lo logras!"
-//
-// PERMISOS ANDROID:
-//   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-//   <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-//   (Android 13+) POST_NOTIFICATIONS se pide en runtime
-//
-// MEJORA UX: Las notificaciones mantienen al usuario enganchado
-// con la app incluso cuando no la está usando activamente,
-// típico de apps gamificadas como Duolingo.
-// ============================================================
-
 import { useCallback } from 'react';
 import { LocalNotifications } from '@capacitor/local-notifications';
 
@@ -57,8 +38,6 @@ export const useLocalNotifications = (): UseLocalNotificationsReturn => {
         }],
       });
     } catch {
-      // Silencioso en browser — las notificaciones locales
-      // solo funcionan en Capacitor nativo
     }
   };
 

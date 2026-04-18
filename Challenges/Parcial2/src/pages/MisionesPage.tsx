@@ -42,8 +42,6 @@ const MisionesPage: React.FC = () => {
 
       <IonContent>
         <div className="page-container">
-
-          {/* Header de bienvenida + puntos */}
           <div className="points-header">
             <div>
               <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -58,10 +56,8 @@ const MisionesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Progreso general */}
           <ProgressBar completed={totalCompleted} total={missions.length} />
 
-          {/* Estado del progreso */}
           {progress === 100 && (
             <div style={{
               textAlign: 'center',
@@ -77,7 +73,6 @@ const MisionesPage: React.FC = () => {
             </div>
           )}
 
-          {/* Lista de misiones */}
           <p className="section-title">Tus misiones</p>
 
           {missions.map((mission, index) => (
@@ -89,7 +84,6 @@ const MisionesPage: React.FC = () => {
             />
           ))}
 
-          {/* Nota informativa */}
           <div style={{
             marginTop: '16px',
             padding: '12px 16px',

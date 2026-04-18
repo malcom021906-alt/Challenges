@@ -1,8 +1,3 @@
-// ============================================================
-// MISIÓN 3: Modo Zen — Acelerómetro + Haptics
-// Plugins usados: @capacitor/motion, @capacitor/haptics
-// ============================================================
-
 import React, { useEffect, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle,
@@ -41,7 +36,7 @@ const Mision3Page: React.FC = () => {
   };
 
   const {
-    isListening, countdown, isCompleted, acceleration, isStill,
+    isListening, isReady, countdown, isCompleted, acceleration, isStill,
     startListening, stopListening, reset
   } = useMotion(handleMissionComplete);
 
@@ -52,10 +47,16 @@ const Mision3Page: React.FC = () => {
 
   useEffect(() => {
     return () => stopListening();
-  }, []);
+  }, [stopListening]);
 
   const progressAngle = ((TOTAL_SECONDS - countdown) / TOTAL_SECONDS) * 283;
   const circumference = 283;
+
+  const getStatusText = () => {
+    if (!isListening) return 'Presiona iniciar';
+    if (!isReady) return '¡Prepárate! No te muevas...';
+    return isStill ? ' Quieto...' : ' ¡Te moviste! Reiniciando...';
+  };
 
   if (isLocked) {
     return (
@@ -92,8 +93,6 @@ const Mision3Page: React.FC = () => {
 
       <IonContent>
         <div className="page-container">
-
-          {/* Info misión */}
           <div className="sensor-card" style={{ textAlign: 'left', marginBottom: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
               <span style={{ fontSize: '2.5rem' }}>🧘</span>
@@ -109,16 +108,8 @@ const Mision3Page: React.FC = () => {
               Permanece <strong>completamente quieto 10 segundos</strong>. El acelerómetro detecta
               cualquier movimiento. Si te mueves, el conteo reinicia. Al completar, el celular vibrará.
             </p>
-            <div style={{
-              marginTop: '12px', padding: '8px 12px',
-              background: 'rgba(108,99,255,0.08)',
-              borderRadius: '8px', fontSize: '0.75rem', color: 'var(--color-primary)'
-            }}>
-              🔌 <strong>@capacitor/motion</strong> (accel) + <strong>@capacitor/haptics</strong> (vibración)
-            </div>
           </div>
 
-          {/* Ya completada */}
           {(isAlreadyDone || isCompleted) ? (
             <div style={{
               textAlign: 'center', padding: '30px',
@@ -135,26 +126,22 @@ const Mision3Page: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Countdown ring */}
               <div className="sensor-card" style={{ marginBottom: '20px' }}>
-                <p className="sensor-label" style={{ marginBottom: '20px' }}>
-                  {isListening ? (isStill ? '😌 Quieto...' : '😬 ¡Te moviste! Reiniciando...') : 'Presiona iniciar'}
+                <p className="sensor-label" style={{ 
+                  marginBottom: '20px', 
+                  color: !isReady && isListening ? 'var(--color-warning)' : 'var(--text-secondary)',
+                  fontWeight: !isReady && isListening ? 800 : 400
+                }}>
+                  {getStatusText()}
                 </p>
 
                 <div className="countdown-ring" id="countdown-ring">
                   <svg width="160" height="160" viewBox="0 0 100 100">
-                    {/* Track */}
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-surface)" strokeWidth="6" />
                     <circle
                       cx="50" cy="50" r="45"
                       fill="none"
-                      stroke="var(--color-surface)"
-                      strokeWidth="6"
-                    />
-                    {/* Progress */}
-                    <circle
-                      cx="50" cy="50" r="45"
-                      fill="none"
-                      stroke={isStill && isListening ? 'var(--color-secondary)' : 'var(--color-primary)'}
+                      stroke={!isReady && isListening ? 'var(--color-warning)' : (isStill && isListening ? 'var(--color-secondary)' : 'var(--color-primary)')}
                       strokeWidth="6"
                       strokeDasharray={`${circumference} ${circumference}`}
                       strokeDashoffset={circumference - progressAngle}
@@ -162,18 +149,19 @@ const Mision3Page: React.FC = () => {
                       style={{ transition: 'stroke-dashoffset 0.5s ease, stroke 0.3s ease' }}
                     />
                   </svg>
-                  <div className="countdown-number" id="countdown-display">{countdown}</div>
+                  <div className="countdown-number" id="countdown-display" style={{ 
+                    color: !isReady && isListening ? 'var(--color-warning)' : 'var(--text-primary)' 
+                  }}>
+                    {!isReady && isListening ? '...' : countdown}
+                  </div>
                 </div>
 
-                {/* Acelerómetro en tiempo real */}
                 {acceleration && isListening && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '16px' }}>
                     {(['x', 'y', 'z'] as const).map(axis => (
                       <div key={axis} style={{
-                        background: 'var(--color-surface)',
-                        borderRadius: '8px', padding: '8px',
-                        border: '1px solid var(--color-border)',
-                        textAlign: 'center'
+                        background: 'var(--color-surface)', borderRadius: '8px', padding: '8px',
+                        border: '1px solid var(--color-border)', textAlign: 'center'
                       }}>
                         <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginBottom: '2px', textTransform: 'uppercase' }}>
                           Accel {axis.toUpperCase()}
@@ -187,37 +175,25 @@ const Mision3Page: React.FC = () => {
                 )}
               </div>
 
-              {/* Estado del movimiento */}
               {isListening && (
                 <div style={{
-                  textAlign: 'center', marginBottom: '16px',
-                  padding: '12px',
+                  textAlign: 'center', marginBottom: '16px', padding: '12px',
                   background: isStill ? 'rgba(0,212,170,0.1)' : 'rgba(239,68,68,0.1)',
                   border: `1px solid ${isStill ? 'rgba(0,212,170,0.3)' : 'rgba(239,68,68,0.2)'}`,
                   borderRadius: 'var(--radius-md)',
                   color: isStill ? 'var(--color-secondary)' : 'var(--color-danger)',
-                  fontWeight: 700, fontSize: '0.9rem',
-                  transition: 'all 0.3s ease'
+                  fontWeight: 700, fontSize: '0.9rem', transition: 'all 0.3s ease'
                 }}>
-                  {isStill ? '✅ Quieto — sigue así' : '⚠️ ¡Movimiento detectado! Cuenta reiniciada'}
+                  {isStill ? '✅ Quieto — sigue así' : ' ¡Movimiento detectado! Cuenta reiniciada'}
                 </div>
               )}
 
-              {/* Botones */}
               {!isListening ? (
-                <button
-                  id="btn-start-motion"
-                  className="btn-primary animate-pulse-glow"
-                  onClick={startListening}
-                >
+                <button id="btn-start-motion" className="btn-primary animate-pulse-glow" onClick={startListening}>
                   🧘 Iniciar detección
                 </button>
               ) : (
-                <button
-                  id="btn-reset-motion"
-                  className="btn-secondary"
-                  onClick={() => { reset(); showToast('🔄 Reiniciado'); }}
-                >
+                <button id="btn-reset-motion" className="btn-secondary" onClick={() => { reset(); showToast('🔄 Reiniciado'); }}>
                   🔄 Reiniciar
                 </button>
               )}
@@ -229,7 +205,7 @@ const Mision3Page: React.FC = () => {
             background: 'rgba(108,99,255,0.05)',
             borderRadius: '8px', fontSize: '0.75rem', color: 'var(--text-muted)'
           }}>
-            💡 En browser se simula el acelerómetro. En Android usa el sensor físico real.
+            En browser se simula el acelerómetro. En Android usa el sensor físico real.
             Al completar, el celular vibrará automáticamente.
           </div>
         </div>

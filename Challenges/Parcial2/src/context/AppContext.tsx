@@ -1,15 +1,8 @@
-// ============================================================
-// CONTEXTO GLOBAL DE LA APLICACIÓN
-// ============================================================
-// Gestiona el estado compartido: usuario autenticado, puntos,
-// misiones y persistencia en LocalStorage + Firebase.
-// ============================================================
-
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { Mission, MissionProgress } from '../models/types';
 import { MISSIONS_DEFAULT } from '../models/types';
 import { auth } from '../firebase/config';
-import { saveMissionProgress, loadUserProgress } from '../services/firestoreService';
+import { saveMissionProgress, loadUserProgress } from '../services/databaseService';
 import type { User } from 'firebase/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -21,7 +14,7 @@ interface AppContextType {
   completeMotion: (missionId: number, pts: number) => void;
   resetProgress: () => void;
   totalCompleted: number;
-  progress: number; // 0 to 100
+  progress: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -34,14 +27,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [missions, setMissions] = useState<Mission[]>(MISSIONS_DEFAULT);
   const [loading, setLoading] = useState(true);
 
-  // Escuchar cambios de auth
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        await loadProgressFromStorage(firebaseUser.uid);
+        localStorage.setItem('last_sync_email', firebaseUser.email || '');
+        await syncWithFirestore(firebaseUser.uid);
       } else {
-        // Reset al hacer logout
         setPoints(0);
         setMissions(MISSIONS_DEFAULT);
       }
@@ -50,8 +42,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => unsub();
   }, []);
 
-  const loadProgressFromStorage = async (uid: string) => {
-    // 1. Intentar cargar desde LocalStorage primero (rápido)
+  const syncWithFirestore = async (uid: string) => {
+    try {
+      const data = await loadUserProgress(uid);
+      if (data) {
+        setPoints(data.points ?? 0);
+        if (data.missions) applyMissionProgress(data.missions);
+        localStorage.setItem(`${STORAGE_KEY}_${uid}`, JSON.stringify({
+          points: data.points ?? 0,
+          missions: data.missions ?? [],
+        }));
+        return;
+      }
+    } catch (e) {
+    }
+
     const raw = localStorage.getItem(`${STORAGE_KEY}_${uid}`);
     if (raw) {
       try {
@@ -60,15 +65,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (saved.missions) applyMissionProgress(saved.missions);
       } catch (_) {}
     }
-
-    // 2. Luego sincronizar con Firebase (fuente de verdad)
-    try {
-      const data = await loadUserProgress(uid);
-      if (data) {
-        setPoints(data.points ?? 0);
-        if (data.missions) applyMissionProgress(data.missions);
-      }
-    } catch (_) {}
   };
 
   const applyMissionProgress = (saved: MissionProgress[]) => {
@@ -80,7 +76,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           updated[idx] = { ...updated[idx], status: 'completed' };
         }
       });
-      // Desbloquear misión 3 si la 2 está completada
       const m2 = updated.find(m => m.id === 2);
       const m3idx = updated.findIndex(m => m.id === 3);
       if (m2?.status === 'completed' && updated[m3idx].status === 'locked') {
@@ -97,36 +92,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       completed: m.status === 'completed',
     }));
 
-    // LocalStorage (instantáneo)
     localStorage.setItem(`${STORAGE_KEY}_${user.uid}`, JSON.stringify({
       points: newPoints,
       missions: progress,
     }));
 
-    // Firebase (persistencia real)
     try {
       await saveMissionProgress(user.uid, newPoints, progress);
-    } catch (_) {}
+    } catch (e) {
+    }
   }, [user]);
 
   const completeMotion = useCallback((missionId: number, pts: number) => {
+    let updatedMissions: Mission[] = [];
+    let updatedPoints = 0;
+
     setMissions(prev => {
       const updated = prev.map(m =>
         m.id === missionId ? { ...m, status: 'completed' as const } : m
       );
-      // Desbloquear misión 3 cuando se completa la 2
+
       if (missionId === 2) {
         const m3idx = updated.findIndex(m => m.id === 3);
         if (m3idx !== -1 && updated[m3idx].status === 'locked') {
           updated[m3idx] = { ...updated[m3idx], status: 'pending' };
         }
       }
-      setPoints(prev => {
-        const newPts = prev + pts;
-        saveProgress(newPts, updated);
-        return newPts;
-      });
+      updatedMissions = updated;
       return updated;
+    });
+
+    setPoints(prev => {
+      updatedPoints = prev + pts;
+      if (updatedMissions.length > 0) {
+        saveProgress(updatedPoints, updatedMissions);
+      }
+      return updatedPoints;
     });
   }, [saveProgress]);
 

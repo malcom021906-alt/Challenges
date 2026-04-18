@@ -1,16 +1,9 @@
-// ============================================================
-// PANTALLA DE RANKING
-// Mezcla usuarios reales de Firebase con 4 usuarios fake.
-// El usuario actual aparece siempre en el ranking.
-// ============================================================
-
 import React, { useEffect, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonRefresher, IonRefresherContent
 } from '@ionic/react';
 import { useApp } from '../context/AppContext';
-import { getRanking } from '../services/firestoreService';
-import { saveMissionProgress } from '../services/firestoreService';
+import { getRanking, saveMissionProgress } from '../services/databaseService';
 import type { RankingEntry } from '../models/types';
 
 const MEDAL = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
@@ -24,7 +17,6 @@ const RankingPage: React.FC = () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Sincronizar puntos actuales antes de cargar ranking
       await saveMissionProgress(
         user.uid,
         points,
@@ -33,14 +25,14 @@ const RankingPage: React.FC = () => {
     } catch (_) {}
 
     try {
-      const data = await getRanking(user.uid);
-      // Inyectar datos reales del usuario actual
-      const withMe = data.map(e =>
-        e.isCurrentUser ? { ...e, points, displayName: user.displayName || 'Tú' } : e
-      );
-      setRanking(withMe.sort((a, b) => b.points - a.points));
+      const data = await getRanking();
+      const withMe = data.map(e => ({
+        ...e,
+        isCurrentUser: e.uid === user.uid,
+        displayName: e.uid === user.uid ? (user.displayName || 'Tú') : (e.displayName || e.email || 'Usuario')
+      }));
+      setRanking(withMe.slice(0, 5));
     } catch (_) {
-      // Fallback offline
       setRanking([
         { uid: 'fake-1', displayName: 'AlexGameMaster', email: 'alex@demo.com', points: 280 },
         { uid: 'fake-2', displayName: 'SofiaMissions', email: 'sofia@demo.com', points: 200 },
@@ -71,12 +63,9 @@ const RankingPage: React.FC = () => {
         </IonRefresher>
 
         <div className="page-container">
-
-          {/* Mi posición */}
           {myPosition > 0 && !loading && (
             <div style={{
-              textAlign: 'center', marginBottom: '24px',
-              padding: '20px',
+              textAlign: 'center', marginBottom: '24px', padding: '20px',
               background: 'linear-gradient(135deg, rgba(108,99,255,0.15) 0%, rgba(168,85,247,0.15) 100%)',
               borderRadius: 'var(--radius-lg)',
               border: '1px solid rgba(108,99,255,0.3)',
