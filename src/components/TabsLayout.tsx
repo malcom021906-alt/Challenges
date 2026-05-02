@@ -1,53 +1,59 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
-import {
-  IonTabs,
-  IonTabBar,
-  IonTabButton,
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-} from '@ionic/react';
-import { listOutline, peopleOutline, nutritionOutline } from 'ionicons/icons';
+import { Redirect, Route, Switch, NavLink } from 'react-router-dom';
+import { ListTodo, Users, Apple } from 'lucide-react';
 import TasksList from '../pages/List';
 import ContactsPage from '../pages/ContactsPage';
 import FruitsPage from '../pages/FruitsPage';
 
 const TabsLayout: React.FC = () => {
   return (
-    <IonTabs>
-      <IonRouterOutlet>
-        <Route exact path="/tabs/tasks">
-          <TasksList />
-        </Route>
-        <Route exact path="/tabs/contacts">
-          <ContactsPage />
-        </Route>
-        <Route exact path="/tabs/fruits">
-          <FruitsPage />
-        </Route>
-        <Route exact path="/tabs">
-          <Redirect to="/tabs/tasks" />
-        </Route>
-      </IonRouterOutlet>
+    <div className="flex flex-col h-screen w-full overflow-hidden bg-slate-50">
+      <main className="flex-1 overflow-y-auto pb-16">
+        <Switch>
+          <Route exact path="/tabs/tasks">
+            <TasksList />
+          </Route>
+          <Route exact path="/tabs/contacts">
+            <ContactsPage />
+          </Route>
+          <Route exact path="/tabs/fruits">
+            <FruitsPage />
+          </Route>
+          <Route exact path="/tabs">
+            <Redirect to="/tabs/tasks" />
+          </Route>
+        </Switch>
+      </main>
 
-      <IonTabBar slot="bottom">
-        <IonTabButton tab="tasks" href="/tabs/tasks">
-          <IonIcon icon={listOutline} />
-          <IonLabel>Tareas</IonLabel>
-        </IonTabButton>
+      <nav className="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around items-center h-16 z-50 px-2 safe-area-pb shadow-lg">
+        <NavLink 
+          to="/tabs/tasks" 
+          className="flex flex-col items-center justify-center w-full h-full text-slate-500 hover:text-blue-600 transition-colors"
+          activeClassName="text-blue-600 font-semibold"
+        >
+          <ListTodo size={24} className="mb-1" />
+          <span className="text-xs">Tareas</span>
+        </NavLink>
 
-        <IonTabButton tab="contacts" href="/tabs/contacts">
-          <IonIcon icon={peopleOutline} />
-          <IonLabel>Contactos</IonLabel>
-        </IonTabButton>
+        <NavLink 
+          to="/tabs/contacts" 
+          className="flex flex-col items-center justify-center w-full h-full text-slate-500 hover:text-blue-600 transition-colors"
+          activeClassName="text-blue-600 font-semibold"
+        >
+          <Users size={24} className="mb-1" />
+          <span className="text-xs">Contactos</span>
+        </NavLink>
 
-        <IonTabButton tab="fruits" href="/tabs/fruits">
-          <IonIcon icon={nutritionOutline} />
-          <IonLabel>Frutas</IonLabel>
-        </IonTabButton>
-      </IonTabBar>
-    </IonTabs>
+        <NavLink 
+          to="/tabs/fruits" 
+          className="flex flex-col items-center justify-center w-full h-full text-slate-500 hover:text-blue-600 transition-colors"
+          activeClassName="text-blue-600 font-semibold"
+        >
+          <Apple size={24} className="mb-1" />
+          <span className="text-xs">Frutas</span>
+        </NavLink>
+      </nav>
+    </div>
   );
 };
 

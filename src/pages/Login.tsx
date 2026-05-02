@@ -1,16 +1,5 @@
-import {
-  IonContent,
-  IonPage,
-  IonInput,
-  IonButton,
-  IonText,
-  IonCard,
-  IonCardContent,
-  IonIcon,
-  IonSpinner
-} from '@ionic/react';
-import { logInOutline, personAddOutline, mailOutline, lockClosedOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { LogIn, Mail, Lock, UserPlus, Loader2 } from 'lucide-react';
 import { useHistory } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthContext';
 
@@ -34,86 +23,84 @@ const Login: React.FC = () => {
   };
 
   return (
-    <IonPage>
-      <IonContent className="ion-padding" scrollY={false}>
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6">
-          <div className="w-full max-w-md">
-            <div className="text-center mb-10">
-              <div className="bg-blue-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-4 transform rotate-12 transition-transform hover:rotate-0">
-                <IonIcon icon={logInOutline} className="text-4xl" />
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 overflow-y-auto">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <div className="bg-blue-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center mx-auto shadow-lg mb-4 transform rotate-12 transition-transform hover:rotate-0">
+            <LogIn size={40} />
+          </div>
+          <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Bienvenido</h1>
+          <p className="text-slate-500 mt-2 font-medium">Gestiona tus tareas de forma eficiente</p>
+        </div>
+
+        <div className="rounded-3xl shadow-xl border border-slate-100 overflow-hidden bg-white">
+          <div className="p-8">
+            <form onSubmit={handleLogin} className="flex flex-col gap-6">
+              <div className="space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="Correo electrónico"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    required
+                  />
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock size={20} className="text-slate-400" />
+                  </div>
+                  <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    required
+                  />
+                </div>
               </div>
-              <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">Bienvenido</h1>
-              <p className="text-slate-500 mt-2 font-medium">Gestiona tus tareas de forma eficiente</p>
-            </div>
 
-            <IonCard className="rounded-3xl shadow-xl border-0 overflow-hidden bg-white">
-              <IonCardContent className="p-8">
-                <form onSubmit={handleLogin} className="flex flex-col gap-6">
-                  <div className="space-y-4">
-                    <IonInput
-                      type="email"
-                      placeholder="Correo electrónico"
-                      value={email}
-                      onIonInput={(e) => setEmail(e.detail.value!)}
-                      className="custom-input h-14"
-                      fill="outline"
-                      labelPlacement="stacked"
-                    >
-                      <IonIcon slot="start" icon={mailOutline} className="mr-3 text-slate-400" aria-hidden="true" />
-                    </IonInput>
+              {error && (
+                <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-shake">
+                  <p className="text-red-600 text-sm font-semibold flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    {error}
+                  </p>
+                </div>
+              )}
 
-                    <IonInput
-                      type="password"
-                      placeholder="Contraseña"
-                      value={password}
-                      onIonInput={(e) => setPassword(e.detail.value!)}
-                      className="custom-input h-14"
-                      fill="outline"
-                      labelPlacement="stacked"
-                    >
-                      <IonIcon slot="start" icon={lockClosedOutline} className="mr-3 text-slate-400" aria-hidden="true" />
-                    </IonInput>
-                  </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-2xl transition-colors disabled:opacity-70 flex justify-center items-center"
+              >
+                {loading ? <Loader2 className="animate-spin" size={24} /> : 'Iniciar Sesión'}
+              </button>
 
-                  {error && (
-                    <div className="bg-red-50 p-4 rounded-2xl border border-red-100 animate-shake">
-                      <IonText color="danger" className="text-sm font-semibold flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                        {error}
-                      </IonText>
-                    </div>
-                  )}
-
-                  <IonButton
-                    type="submit"
-                    expand="block"
-                    className="h-14 font-bold text-lg"
-                    style={{ '--border-radius': '1rem' }}
-                    disabled={loading}
-                  >
-                    {loading ? <IonSpinner name="crescent" /> : 'Iniciar Sesión'}
-                  </IonButton>
-
-                  <div className="text-center mt-4">
-                    <IonButton
-                      fill="clear"
-                      onClick={() => {
-                        clearError();
-                        history.push('/register');
-                      }}
-                      className="text-primary font-bold hover:opacity-80 transition-opacity"
-                    >
-                      <IonIcon icon={personAddOutline} slot="start" />
-                      ¿No tienes cuenta? Regístrate
-                    </IonButton>
-                  </div>
-                </form>
-              </IonCardContent>
-            </IonCard>
+              <div className="text-center mt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearError();
+                    history.push('/register');
+                  }}
+                  className="flex items-center justify-center w-full gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors py-2"
+                >
+                  <UserPlus size={20} />
+                  ¿No tienes cuenta? Regístrate
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </IonContent>
-    </IonPage>
+      </div>
+    </div>
   );
 };
 

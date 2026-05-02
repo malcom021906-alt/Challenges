@@ -1,23 +1,5 @@
 import React, { useState } from 'react';
-import {
-  IonContent,
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
-  IonInput,
-  IonChip,
-} from '@ionic/react';
-import { logOutOutline, addOutline, trashOutline, wifiOutline } from 'ionicons/icons';
+import { LogOut, Plus, Trash2, WifiOff, Apple, X } from 'lucide-react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useFruitsContext } from '../contexts/FruitsContext';
 
@@ -38,106 +20,122 @@ const FruitsPage: React.FC = () => {
   };
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar color="success">
-          <IonTitle>Mis Frutas (Cloud)</IonTitle>
-          <IonButtons slot="end">
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <header className="bg-green-600 text-white shadow-md z-10 sticky top-0">
+        <div className="flex items-center justify-between px-4 h-14">
+          <h1 className="text-xl font-bold tracking-wide">Mis Frutas (Cloud)</h1>
+          <div className="flex items-center gap-2">
             {!isOnline && (
-              <IonIcon icon={wifiOutline} color="danger" className="mr-2 text-xl" />
+              <WifiOff className="text-red-300 w-5 h-5 mr-1" />
             )}
-            <IonButton onClick={logout} className="font-semibold">
-              <IonIcon slot="start" icon={logOutOutline} />
+            <button 
+              onClick={logout} 
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-green-700 font-semibold transition-colors text-sm"
+            >
+              <LogOut size={18} />
               <span className="hidden sm:inline">Salir</span>
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+            </button>
+          </div>
+        </div>
+      </header>
 
-      <IonContent color="light">
-        <div className="max-w-3xl mx-auto p-4">
-           <div className="bg-white rounded-2xl shadow-md p-6 mb-6 border border-success">
+      <main className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-3xl mx-auto">
+           <div className="bg-white rounded-2xl shadow-sm border border-green-200 p-6 mb-6">
             <p className="text-sm text-slate-500 mb-3">
               Conectado como: <strong className="text-slate-700">{user?.email}</strong>
             </p>
             {!isOnline && (
-              <IonChip color="danger" className="mb-4">
-                <IonLabel>Sin conexión - Modo Solo Lectura</IonLabel>
-              </IonChip>
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold mb-4">
+                Sin conexión - Modo Solo Lectura
+              </div>
             )}
             
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Mis Frutas ({fruits.length})</h2>
-              <IonButton 
+              <h2 className="text-xl font-bold text-slate-800">Mis Frutas ({fruits.length})</h2>
+              <button 
                 onClick={() => setShowForm(!showForm)} 
-                color="success"
                 disabled={!isOnline}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-colors disabled:opacity-50 ${
+                  showForm 
+                    ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' 
+                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
               >
-                <IonIcon slot="start" icon={addOutline} />
+                {showForm ? <X size={18} /> : <Plus size={18} />}
                 {showForm ? 'Cancelar' : 'Nueva'}
-              </IonButton>
+              </button>
             </div>
 
             {showForm && (
-              <form onSubmit={handleAdd} className="mb-6 p-4 border border-gray-200 rounded-xl bg-gray-50 space-y-4">
-                <IonItem className="rounded-lg">
-                  <IonInput
-                    label="Nombre"
-                    labelPlacement="floating"
+              <form onSubmit={handleAdd} className="mb-6 p-5 border border-slate-200 rounded-2xl bg-slate-50 space-y-4">
+                <div className="space-y-1">
+                  <label htmlFor="fruit-name" className="block text-sm font-medium text-slate-700">Nombre</label>
+                  <input
+                    id="fruit-name"
+                    type="text"
                     value={name}
-                    onIonChange={e => setName(e.detail.value!)}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white"
                     required
                   />
-                </IonItem>
-                <IonItem className="rounded-lg">
-                  <IonInput
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="fruit-qty" className="block text-sm font-medium text-slate-700">Cantidad</label>
+                  <input
+                    id="fruit-qty"
                     type="number"
-                    label="Cantidad"
-                    labelPlacement="floating"
+                    min="1"
                     value={qty}
-                    onIonChange={e => setQty(e.detail.value!)}
+                    onChange={(e) => setQty(e.target.value)}
+                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors bg-white"
                     required
                   />
-                </IonItem>
-                <IonButton type="submit" expand="block" color="success">
+                </div>
+                <button 
+                  type="submit" 
+                  className="w-full h-12 mt-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-colors flex justify-center items-center"
+                >
                   Guardar
-                </IonButton>
+                </button>
               </form>
             )}
           </div>
 
           {fruits.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-4">🍎</div>
-               <h2 className="text-xl font-bold text-slate-600 mb-2">No hay frutas</h2>
-               <p className="text-slate-400">Agrega frutas para sincronizarlas en la nube</p>
+            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 border-dashed">
+              <Apple className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+              <h2 className="text-xl font-bold text-slate-600 mb-2">No hay frutas</h2>
+              <p className="text-slate-400 text-sm">Agrega frutas para sincronizarlas en la nube</p>
             </div>
           ) : (
-            <IonList className="rounded-2xl overflow-hidden shadow-md bg-white">
+            <ul className="rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white divide-y divide-slate-100">
               {fruits.map((f) => (
-                <IonItemSliding key={f.id}>
-                  <IonItem>
-                    <IonLabel>
-                      <h2 className="font-bold text-lg">{f.name}</h2>
-                      <p>Cantidad: <strong className="text-success">{f.quantity}</strong></p>
-                    </IonLabel>
-                  </IonItem>
-                   <IonItemOptions side="end">
-                    <IonItemOption 
-                      color="danger" 
-                      onClick={() => deleteFruit(f.id)}
-                      disabled={!isOnline}
-                    >
-                      <IonIcon slot="icon-only" icon={trashOutline} />
-                    </IonItemOption>
-                  </IonItemOptions>
-                </IonItemSliding>
+                <li key={f.id} className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold">
+                      {f.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-lg text-slate-800 leading-tight">{f.name}</h2>
+                      <p className="text-sm text-slate-500">Cantidad: <strong className="text-green-600">{f.quantity}</strong></p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => deleteFruit(f.id)}
+                    disabled={!isOnline}
+                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 focus:outline-none"
+                    title="Eliminar"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </li>
               ))}
-            </IonList>
+            </ul>
           )}
         </div>
-      </IonContent>
-    </IonPage>
+      </main>
+    </div>
   );
 };
 

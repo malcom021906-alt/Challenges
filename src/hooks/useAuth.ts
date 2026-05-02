@@ -32,8 +32,9 @@ export const useAuth = () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      setState((prev) => ({ ...prev, loading: false, error: err.message }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al iniciar sesión';
+      setState((prev) => ({ ...prev, loading: false, error: message }));
       throw err;
     }
   };
@@ -42,8 +43,9 @@ export const useAuth = () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-    } catch (err: any) {
-      setState((prev) => ({ ...prev, loading: false, error: err.message }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al registrarse';
+      setState((prev) => ({ ...prev, loading: false, error: message }));
       throw err;
     }
   };

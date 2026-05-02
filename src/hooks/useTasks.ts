@@ -22,8 +22,8 @@ export const useTasks = (userId: string | undefined) => {
     const unsubscribe = onValue(tasksRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const parsedTasks: Task[] = Object.entries(data).map(([key, value]: [string, any]) => ({
-          ...value,
+        const parsedTasks: Task[] = Object.entries(data).map(([key, value]) => ({
+          ...(value as Omit<Task, 'id'>),
           id: key,
         }));
         parsedTasks.sort((a, b) => b.createdAt - a.createdAt);

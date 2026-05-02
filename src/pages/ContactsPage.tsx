@@ -1,25 +1,9 @@
 import React, { useState } from 'react';
-import {
-  IonContent,
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
-  IonChip,
-} from '@ionic/react';
-import { logOutOutline, addOutline, trashOutline, wifiOutline } from 'ionicons/icons';
+import { LogOut, Plus, WifiOff, X } from 'lucide-react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useContactsContext } from '../contexts/ContactsContext';
 import ContactForm from '../components/contactForm';
+import ContactList from '../components/contactList';
 
 const ContactsPage: React.FC = () => {
   const { logout, user } = useAuthContext();
@@ -27,48 +11,55 @@ const ContactsPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Mis Contactos</IonTitle>
-          <IonButtons slot="end">
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <header className="bg-blue-600 text-white shadow-md z-10 sticky top-0">
+        <div className="flex items-center justify-between px-4 h-14">
+          <h1 className="text-xl font-bold tracking-wide">Mis Contactos</h1>
+          <div className="flex items-center gap-2">
             {!isOnline && (
-              <IonIcon icon={wifiOutline} color="danger" className="mr-2 text-xl" />
+              <WifiOff className="text-red-300 w-5 h-5 mr-1" />
             )}
-            <IonButton onClick={logout} className="font-semibold">
-              <IonIcon slot="start" icon={logOutOutline} />
+            <button 
+              onClick={logout} 
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-blue-700 font-semibold transition-colors text-sm"
+            >
+              <LogOut size={18} />
               <span className="hidden sm:inline">Salir</span>
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
-      </IonHeader>
+            </button>
+          </div>
+        </div>
+      </header>
 
-      <IonContent color="light">
-        <div className="max-w-3xl mx-auto p-4">
-          <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+      <main className="flex-1 overflow-y-auto p-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
             <p className="text-sm text-slate-500 mb-3">
               Conectado como: <strong className="text-slate-700">{user?.email}</strong>
             </p>
             {!isOnline && (
-              <IonChip color="danger" className="mb-4">
-                <IonLabel>Sin conexión - Modo Solo Lectura</IonLabel>
-              </IonChip>
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold mb-4">
+                Sin conexión - Modo Solo Lectura
+              </div>
             )}
             
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Mis Contactos ({contacts.length})</h2>
-              <IonButton 
+              <h2 className="text-xl font-bold text-slate-800">Mis Contactos ({contacts.length})</h2>
+              <button 
                 onClick={() => setShowForm(!showForm)} 
                 disabled={!isOnline}
-                color="secondary"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition-colors disabled:opacity-50 ${
+                  showForm 
+                    ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' 
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                }`}
               >
-                <IonIcon slot="start" icon={addOutline} />
+                {showForm ? <X size={18} /> : <Plus size={18} />}
                 {showForm ? 'Cancelar' : 'Nuevo'}
-              </IonButton>
+              </button>
             </div>
 
             {showForm && isOnline && (
-              <div className="mb-6 p-4 border border-gray-100 rounded-xl bg-gray-50">
+              <div className="mb-6 p-4 border border-slate-100 rounded-xl bg-slate-50">
                 <ContactForm 
                   onAdd={(name, phone) => {
                     addContact(name, phone);
@@ -79,39 +70,10 @@ const ContactsPage: React.FC = () => {
             )}
           </div>
 
-          {contacts.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-4">👤</div>
-              <h2 className="text-xl font-bold text-slate-600 mb-2">No tienes contactos</h2>
-              <p className="text-slate-400">Agrega contactos para verlos aquí</p>
-            </div>
-          ) : (
-            <IonList className="rounded-2xl overflow-hidden shadow-md bg-white">
-              {contacts.map((contact) => (
-                <IonItemSliding key={contact.id}>
-                  <IonItem button routerLink={`/contact/view/${contact.id}`}>
-                    <IonLabel>
-                      <h2 className="font-semibold text-lg">{contact.name}</h2>
-                      <p className="text-slate-500">{contact.phone}</p>
-                    </IonLabel>
-                  </IonItem>
-
-                  <IonItemOptions side="end">
-                    <IonItemOption
-                      color="danger"
-                      onClick={() => deleteContact(contact.id)}
-                      disabled={!isOnline}
-                    >
-                      <IonIcon slot="icon-only" icon={trashOutline} />
-                    </IonItemOption>
-                  </IonItemOptions>
-                </IonItemSliding>
-              ))}
-            </IonList>
-          )}
+          <ContactList contacts={contacts} onDelete={deleteContact} />
         </div>
-      </IonContent>
-    </IonPage>
+      </main>
+    </div>
   );
 };
 
